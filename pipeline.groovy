@@ -34,7 +34,7 @@ timeout(240) {
         dir('jmeter') {
             try {
 
-                docker.withRegistry('https://hub.docker.com') {
+                docker.withRegistry('https://registry.hub.docker.com') {
                     tagged_image.pull()
                     stage('startAgents') {
                         // Start 3 JMeter Agents and retrieve their IP and the container handle. Mount current folder into the container
