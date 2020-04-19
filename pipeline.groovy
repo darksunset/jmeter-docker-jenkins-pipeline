@@ -1,4 +1,4 @@
-tag='5.0.1'
+tag='latest'
 host="${HOST}"
 casino="${CASINO}"
 agentIpList=''
@@ -10,8 +10,8 @@ link . That is why we need to perform the pull only using the image name
 Yet, when running the container, we need to start it with the complete image name. Therefore we need two variables here
 */
 
-tagged_image=docker.image('performance/docker-edict-jmeter:'+tag)
-image=docker.image('myregistry:5000/performance/docker-edict-jmeter:'+tag)
+tagged_image=docker.image('darksunset/sampledocker:'+tag)
+image=docker.image('darksunset/sampledocker:'+tag)
 
 /* We will hold the ip's of the JMeter Agent Containers in a list so we can forward it to the JMeter Master when starting the test
 The handleList is used for storing the container handles of the JMeter Agents so we can perform shutdown of Agents
@@ -25,16 +25,16 @@ timeout(240) {
     node('docker') {
 
         cleanWs deleteDirs: true, patterns: [[pattern: '*', type: 'INCLUDE']]
-        stage('checkout') {
+        /*stage('checkout') {
             checkout([$class: 'GitSCM', branches: [[name: "${BRANCH}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'edictci_gitlab', url: 'git@git.e-dict.net:UnifiedAutomatedDeployment/jmeter-performance-tests.git']]])
             // Read threshold values for testcases from sla.json file
             data = readJSON file: 'sla.json'
-        }
+        }*/
         // Change into jmeter subfolder, so we do not mount the entire eoc, but only the performance tests
         dir('jmeter') {
             try {
 
-                docker.withRegistry('https://registry.e-dict.net:5000') {
+                docker.withRegistry('https://hub.docker.com') {
                     tagged_image.pull()
                     stage('startAgents') {
                         // Start 3 JMeter Agents and retrieve their IP and the container handle. Mount current folder into the container
@@ -54,45 +54,10 @@ timeout(240) {
                     // slas
                     stage('memoryMetaPlayAllGames') {
                         propertiesMap = [
-                                'users': 1,
-                                'ramptime': 1,
-                                'gameRounds': 5,
-                                'host': host,
-                                'wallet': host,
-                                'casino': casino
+                                'dummy': 1
                         ]
-                        performTest('egb/Tplan_EOC_Play_All_Games_EGB.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
+                        performTest('egb/SegUI_Test_Plan_Browser_Datasource.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
-                    // Test to ensure that we do not have a memory leak in starting/closing games (objects being
-                    // released after gamesession ends)
-                    // Expected number of games played: 24000
-                    // Estimated duration: 15 minutes
-                    stage('memoryHeapStartCloseAllGames'){
-                        propertiesMap = [
-                                'users': 1,
-                                'rampup': 1,
-                                'gameRounds': 1,
-                                'repeatLoop':5,
-                                'host': host,
-                                'wallet': host,
-                                'casino': casino
-                        ]
-                        performTest('egb/Tplan_EOC_Start_All_Games_EGB.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
-                    }
-
-                    // Load Test for measuring KPI'S for a defined throughput of 40 games / second
-                    stage('performancePlayMoneyGames'){
-                        propertiesMap = [
-                                'users': 25,
-                                'rampup': 25,
-                                'gameRounds': 500,
-                                'host': host,
-                                'wallet': host,
-                                'casino': casino
-                        ]
-                        performTest('egb/Tplan_EOC_Play_Single_Game_EGB.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
-                    }
-
 
                     /*
                     // Another way to start a container following the sidecar approach is using the withRun method, which differs
@@ -147,10 +112,10 @@ def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v $WORKSPACE:/home/jmeter/tests') {
         sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l $WORKSPACE/jmeter/${report}.jtl -e -o $WORKSPACE/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
-    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
-    perfReport constraints: configureCheckList(report),
+    //publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
+    /*perfReport constraints: configureCheckList(report),
             graphType: 'PRT', modeEvaluation: true, modePerformancePerTestCase: true, modeThroughput: true, percentiles: '0,50,90,100', persistConstraintLog: true,
-            sourceDataFiles:  report+'.jtl'
+            sourceDataFiles:  report+'.jtl'*/
 
 }
 
