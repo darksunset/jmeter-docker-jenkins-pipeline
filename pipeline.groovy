@@ -45,7 +45,6 @@ timeout(240) {
                         // Store the formatted list of JMeter Agent Ips in a String
                         agentIpList = cIpList.join(",")
                     }
-                    sh "echo $WORKSPACE"
                     // Test to ensure that all applications fit in the configured metaspace
                     // by starting 80 games from the game list
                     // Estimated duration: 15 minutes
@@ -109,9 +108,7 @@ def cleanup(containerHandleList) {
 
 def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v $WORKSPACE:/home/jmeter/tests') {
-        sh "pwd"
-        sh "ls -LR"
-        sh "jmeter -n -t /home/jmeter/tests/testplans/$testplan -l /home/jmeter/tests/${report}.jtl -e -o /home/jmeter/tests/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
+        sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l /home/jmeter/tests/jmeter/${report}.jtl -e -o /home/jmeter/tests/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
     //publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
     /*perfReport constraints: configureCheckList(report),
