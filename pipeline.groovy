@@ -1,8 +1,6 @@
 tag='latest'
-host="${HOST}"
-casino="${CASINO}"
 agentIpList=''
-workspace=''
+//workspace='${WS_TESTS}'
 
 
 /* Used for pulling the image. The withRegistry sets the context to retrieve only the docker image, not using the entire
@@ -39,7 +37,7 @@ timeout(240) {
                     stage('startAgents') {
                         // Start 3 JMeter Agents and retrieve their IP and the container handle. Mount current folder into the container
                         for (i = 0; i < 3; i++) {
-                            agent = image.run('-e SLEEP=1 -e JMETER_MODE=AGENT -v /Users/marivel/Documents/jmeter-tests/jmeter-docker-jenkins-pipeline/jmeter:/home/jmeter/tests', '')
+                            agent = image.run('-e SLEEP=1 -e JMETER_MODE=AGENT -v ${WS_TESTS}:/home/jmeter/tests', '')
                             agent_ip = sh(script: "docker inspect -f {{.NetworkSettings.IPAddress}} ${agent.id}", returnStdout: true).trim()
                             cIpList.add(agent_ip)
                             cHandleList.add(agent)
@@ -56,7 +54,7 @@ timeout(240) {
                         propertiesMap = [
                                 'dummy': 1
                         ]
-                        performTest('SegUI_Test_Plan_Browser_Datasource.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
+                        performTest('dummy_test.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
 
                     /*
@@ -109,7 +107,7 @@ def cleanup(containerHandleList) {
 }
 
 def performTest(testplan,report,propertiesList) {
-    image.inside('-e JMETER_MODE=MASTER -v /Users/marivel/Documents/jmeter-tests/jmeter-docker-jenkins-pipeline/jmeter:/home/jmeter/tests') {
+    image.inside('-e JMETER_MODE=MASTER -v ${WS_TESTS}:/home/jmeter/tests') {
         sh "jmeter -n -t /home/jmeter/tests/testplans/$testplan -l /home/jmeter/tests/${report}.jtl -e -o /home/jmeter/tests/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
     //publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
