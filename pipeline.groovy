@@ -24,7 +24,7 @@ timeout(240) {
 
         cleanWs deleteDirs: true, patterns: [[pattern: '*', type: 'INCLUDE']]
         stage('checkout') {
-            checkout([$class: 'GitSCM', branches: [[name: "${BRANCH}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'darksunset', url: 'git@github.com:darksunset/jmeter-docker-jenkins-pipeline.git']]])
+            checkout([$class: 'GitSCM', branches: [[name: "${BRANCH}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'darksunset', url: 'https://github.com/darksunset/jmeter-docker-jenkins-pipeline.git']]])
             // Read threshold values for testcases from sla.json file
             //data = readJSON file: 'sla.json'
         }
