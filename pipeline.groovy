@@ -110,10 +110,10 @@ def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v $WORKSPACE:/home/jmeter/tests') {
         sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l /home/jmeter/tests/jmeter/${report}.jtl -e -o /home/jmeter/tests/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
-    //publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
-    /*perfReport constraints: configureCheckList(report),
+    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
+    perfReport constraints: configureCheckList(report),
             graphType: 'PRT', modeEvaluation: true, modePerformancePerTestCase: true, modeThroughput: true, percentiles: '0,50,90,100', persistConstraintLog: true,
-            sourceDataFiles:  report+'.jtl'*/
+            sourceDataFiles:  report+'.jtl'
 
 }
 
@@ -130,6 +130,7 @@ def configureCheckList(report)
     println("my final constraint list: "+constraintList)
     return constraintList
 }
+
 def setPlanProperties(propertiesMap)
 {
     // Retrieve properties defined in the properties map for each plan, and create a string of properties
