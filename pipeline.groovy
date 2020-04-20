@@ -108,6 +108,7 @@ def cleanup(containerHandleList) {
 
 def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v ${WORKSPACE}:/home/jmeter/tests') {
+        sh "pwd"
         sh "ls -LR"
         sh "jmeter -n -t /home/jmeter/tests/testplans/$testplan -l /home/jmeter/tests/${report}.jtl -e -o /home/jmeter/tests/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
