@@ -110,7 +110,7 @@ def cleanup(containerHandleList) {
 
 def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v /Users/marivel/Documents/jmeter-tests/jmeter-docker-jenkins-pipeline/jmeter:/home/jmeter/tests') {
-        sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l $WORKSPACE/jmeter/${report}.jtl -e -o $WORKSPACE/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
+        sh "jmeter -n -t /home/jmeter/tests/testplans/$testplan -l /home/jmeter/tests/${report}.jtl -e -o /home/jmeter/tests/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
     //publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
     /*perfReport constraints: configureCheckList(report),
