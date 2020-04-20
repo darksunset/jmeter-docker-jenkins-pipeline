@@ -109,6 +109,9 @@ def cleanup(containerHandleList) {
 def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v ${WORKSPACE}:/home/jmeter/tests') {
         sh "ls"
+        sh "cd testplans"
+        sh "ls"
+        sh "cd .."
         sh "jmeter -n -t /home/jmeter/tests/testplans/$testplan -l /home/jmeter/tests/${report}.jtl -e -o /home/jmeter/tests/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
     //publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
