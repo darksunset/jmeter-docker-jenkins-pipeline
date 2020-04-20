@@ -45,6 +45,7 @@ timeout(240) {
                         // Store the formatted list of JMeter Agent Ips in a String
                         agentIpList = cIpList.join(",")
                     }
+                    sh "echo $WORKSPACE"
                     // Test to ensure that all applications fit in the configured metaspace
                     // by starting 80 games from the game list
                     // Estimated duration: 15 minutes
