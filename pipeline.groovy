@@ -50,7 +50,7 @@ timeout(240) {
                     // Estimated duration: 15 minutes
                     // Test to ensure that after starting all games, expected response times fit within the defined
                     // slas
-                    stage('memoryMetaPlayAllGames') {
+                    stage('Test') {
                         propertiesMap = [
                                 'dummy': 1
                         ]
@@ -110,7 +110,7 @@ def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v $WORKSPACE:/home/jmeter/tests') {
         sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l /home/jmeter/tests/jmeter/${report}.jtl -e -o /home/jmeter/tests/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
-    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
+    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
     /* perfReport constraints: configureCheckList(report),
             graphType: 'PRT', modeEvaluation: true, modePerformancePerTestCase: true, modeThroughput: true, percentiles: '0,50,90,100', persistConstraintLog: true,
             sourceDataFiles:  report+'.jtl' */
