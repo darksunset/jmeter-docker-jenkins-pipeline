@@ -37,7 +37,7 @@ timeout(240) {
                     stage('startAgents') {
                         // Start 3 JMeter Agents and retrieve their IP and the container handle. Mount current folder into the container
                         for (i = 0; i < 3; i++) {
-                            agent = image.run('-e SLEEP=1 -e JMETER_MODE=AGENT -v ${WORKSPACE}:/home/jmeter/tests', '')
+                            agent = image.run('-e SLEEP=1 -e JMETER_MODE=AGENT -v $WORKSPACE:/home/jmeter/tests', '')
                             agent_ip = sh(script: "docker inspect -f {{.NetworkSettings.IPAddress}} ${agent.id}", returnStdout: true).trim()
                             cIpList.add(agent_ip)
                             cHandleList.add(agent)
@@ -107,7 +107,7 @@ def cleanup(containerHandleList) {
 }
 
 def performTest(testplan,report,propertiesList) {
-    image.inside('-e JMETER_MODE=MASTER -v ${WORKSPACE}:/home/jmeter/tests') {
+    image.inside('-e JMETER_MODE=MASTER -v $WORKSPACE:/home/jmeter/tests') {
         sh "pwd"
         sh "ls -LR"
         sh "jmeter -n -t /home/jmeter/tests/testplans/$testplan -l /home/jmeter/tests/${report}.jtl -e -o /home/jmeter/tests/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
