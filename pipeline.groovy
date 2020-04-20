@@ -56,7 +56,7 @@ timeout(240) {
                         propertiesMap = [
                                 'dummy': 1
                         ]
-                        performTest('egb/SegUI_Test_Plan_Browser_Datasource.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
+                        performTest('SegUI_Test_Plan_Browser_Datasource.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
 
                     /*
