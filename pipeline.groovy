@@ -137,7 +137,7 @@ def setPlanProperties(propertiesMap)
 {
     // Retrieve properties defined in the properties map for each plan, and create a string of properties
     // to be passed to JMeter
-    propertiesList="-J"+propertiesMap.collect { k,v -> "$k=$v" }.join(' -G')
+    propertiesList="-J"+propertiesMap.collect { k,v -> "$k=$v" }.join(' -J')
     println("property list"+propertiesList)
     return propertiesList
 }
