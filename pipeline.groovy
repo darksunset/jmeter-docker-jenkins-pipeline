@@ -50,7 +50,7 @@ timeout(240) {
                     // Estimated duration: 15 minutes
                     // Test to ensure that after starting all games, expected response times fit within the defined
                     // slas
-                    stage('Dummy_test') {
+                    stage('dummy_test2') {
                         propertiesMap = [
                                 'dummy': 1
                         ]
