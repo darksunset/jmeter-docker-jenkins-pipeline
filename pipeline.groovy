@@ -50,7 +50,7 @@ timeout(240) {
                     // Estimated duration: 15 minutes
                     // Test to ensure that after starting all games, expected response times fit within the defined
                     // slas
-                    stage('Test') {
+                    stage('Dummy_test') {
                         propertiesMap = [
                                 'dummy': 1
                         ]
@@ -108,7 +108,7 @@ def cleanup(containerHandleList) {
 
 def performTest(testplan,report,propertiesList) {
     image.inside('-e JMETER_MODE=MASTER -v $WORKSPACE:/home/jmeter/tests') {
-        sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l /home/jmeter/tests/jmeter/${report}.jtl -e -o /home/jmeter/tests/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
+        sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l $WORKSPACE/jmeter/${report}.jtl -e -o $WORKSPACE/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
     /* perfReport constraints: configureCheckList(report),
