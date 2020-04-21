@@ -20,7 +20,7 @@ cHandleList = []
 
 //Use label to run pipeline only on docker labeled nodes. Set timeout to 60 minutes
 timeout(240) {
-    paramenters {
+    parameters {
         string(name: 'THREADS', defaultValue: '5' , description: 'Number of virtual users')
         string(name: 'RAMPUP', defaultValue: '2', description: 'Time in seconds to reach the full number of threads')
         string(name: 'LOOPCOUNT', defaultValue: '1', description: 'Number of executions for the script')
