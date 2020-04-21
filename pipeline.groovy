@@ -20,11 +20,6 @@ cHandleList = []
 
 //Use label to run pipeline only on docker labeled nodes. Set timeout to 60 minutes
 timeout(240) {
-    /*parameters {
-        string(name: 'THREADS', defaultValue: '5' , description: 'Number of virtual users')
-        string(name: 'RAMPUP', defaultValue: '2', description: 'Time in seconds to reach the full number of threads')
-        string(name: 'LOOPCOUNT', defaultValue: '1', description: 'Number of executions for the script')
-    }*/
     node('docker') {
 
         cleanWs deleteDirs: true, patterns: [[pattern: '*', type: 'INCLUDE']]
@@ -142,7 +137,7 @@ def setPlanProperties(propertiesMap)
 {
     // Retrieve properties defined in the properties map for each plan, and create a string of properties
     // to be passed to JMeter
-    propertiesList="-G"+propertiesMap.collect { k,v -> "$k=$v" }.join(' -G')
+    propertiesList="-J"+propertiesMap.collect { k,v -> "$k=$v" }.join(' -G')
     println("property list"+propertiesList)
     return propertiesList
 }
