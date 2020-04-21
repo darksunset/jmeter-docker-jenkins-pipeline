@@ -52,9 +52,9 @@ timeout(240) {
                     // slas
                     stage('dummy_test2') {
                         propertiesMap = [
-                                'THREADS': "${THREADS}",
-                                'RAMPUP': "${RAMPUP}",
-                                'LOOPCOUNT': "${LOOPCOUNT}"
+                                'threads': "${THREADS}",
+                                'rampUp': "${RAMPUP}",
+                                'loopCount': "${LOOPCOUNT}"
                         ]
                         performTest('dummy_test.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
