@@ -20,11 +20,11 @@ cHandleList = []
 
 //Use label to run pipeline only on docker labeled nodes. Set timeout to 60 minutes
 timeout(240) {
-    parameters {
+    /*parameters {
         string(name: 'THREADS', defaultValue: '5' , description: 'Number of virtual users')
         string(name: 'RAMPUP', defaultValue: '2', description: 'Time in seconds to reach the full number of threads')
         string(name: 'LOOPCOUNT', defaultValue: '1', description: 'Number of executions for the script')
-    }
+    }*/
     node('docker') {
 
         cleanWs deleteDirs: true, patterns: [[pattern: '*', type: 'INCLUDE']]
@@ -57,9 +57,9 @@ timeout(240) {
                     // slas
                     stage('dummy_test2') {
                         propertiesMap = [
-                                'threads': "${params.THREADS}",
-                                'rampUp': "${params.RAMPUP}",
-                                'loopCount': "${params.LOOPCOUNT}"
+                                'threads': "${THREADS}",
+                                'rampUp': "${RAMPUP}",
+                                'loopCount': "${LOOPCOUNT}"
                         ]
                         performTest('dummy_test.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
