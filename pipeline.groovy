@@ -46,7 +46,7 @@ timeout(240) {
                                 'threads': "${THREADS}",
                                 'rampUp': "${RAMPUP}",
                                 'loopCount': "${LOOPCOUNT}",
-                                'url': "${URL}"
+                                'url': ${URL}.toString
                         ]
                         performTest('dummy_test.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
@@ -85,7 +85,7 @@ def setPlanProperties(propertiesMap) {
     // Retrieve properties defined in the properties map for each plan, and create a string of properties
     // to be passed to JMeter
     propertiesList="-G"+propertiesMap.collect { k,v -> "$k=$v" }.join(' -G')
-    println("property list"+propertiesList)
+    println("property list "+propertiesList)
     return propertiesList
 }
 
