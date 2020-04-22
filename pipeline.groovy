@@ -42,12 +42,12 @@ timeout(240) {
                     }
 
                     stage('run_test') {
-                        url = ${URL}.toString()
+                        url = "${URL}".toString()
                         propertiesMap = [
                                 'threads': "${THREADS}",
                                 'rampUp': "${RAMPUP}",
                                 'loopCount': "${LOOPCOUNT}",
-                                'url': url.toString()
+                                'url': "$url"
                         ]
                         performTest('dummy_test.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
