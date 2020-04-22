@@ -42,7 +42,7 @@ timeout(240) {
                     }
 
                     stage('run_test') {
-                        url = ${URL}.toString()
+                        url = "${URL}".toString()
                         propertiesMap = [
                                 'threads': "${THREADS}",
                                 'rampUp': "${RAMPUP}",
