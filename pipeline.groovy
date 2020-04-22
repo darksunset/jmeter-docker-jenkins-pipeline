@@ -47,7 +47,7 @@ timeout(240) {
                                 'threads': "${THREADS}",
                                 'rampUp': "${RAMPUP}",
                                 'loopCount': "${LOOPCOUNT}",
-                                'url': url
+                                'url': url.toString()
                         ]
                         performTest('dummy_test.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
