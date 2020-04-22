@@ -1,7 +1,5 @@
 tag='latest'
 agentIpList=''
-//workspace='${WS_TESTS}'
-
 
 /* Used for pulling the image. The withRegistry sets the context to retrieve only the docker image, not using the entire
 link . That is why we need to perform the pull only using the image name
@@ -21,12 +19,9 @@ cHandleList = []
 //Use label to run pipeline only on docker labeled nodes. Set timeout to 60 minutes
 timeout(240) {
     node('docker') {
-
         cleanWs deleteDirs: true, patterns: [[pattern: '*', type: 'INCLUDE']]
         stage('checkout') {
             checkout([$class: 'GitSCM', branches: [[name: "${BRANCH}"]], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'darksunset', url: 'https://github.com/darksunset/jmeter-docker-jenkins-pipeline.git']]])
-            // Read threshold values for testcases from sla.json file
-            //data = readJSON file: 'sla.json'
         }
         // Change into jmeter subfolder, so we do not mount the entire eoc, but only the performance tests
         dir('jmeter') {
@@ -34,7 +29,7 @@ timeout(240) {
 
                 docker.withRegistry('https://registry.hub.docker.com') {
                     tagged_image.pull()
-                    stage('startAgents') {
+                    stage('start_jmeter_agents') {
                         // Start 3 JMeter Agents and retrieve their IP and the container handle. Mount current folder into the container
                         for (i = 0; i < 3; i++) {
                             agent = image.run('-e SLEEP=1 -e JMETER_MODE=AGENT -v $WORKSPACE:/home/jmeter/tests', '')
@@ -45,12 +40,8 @@ timeout(240) {
                         // Store the formatted list of JMeter Agent Ips in a String
                         agentIpList = cIpList.join(",")
                     }
-                    // Test to ensure that all applications fit in the configured metaspace
-                    // by starting 80 games from the game list
-                    // Estimated duration: 15 minutes
-                    // Test to ensure that after starting all games, expected response times fit within the defined
-                    // slas
-                    stage('dummy_test2') {
+
+                    stage('run_test') {
                         propertiesMap = [
                                 'threads': "${THREADS}",
                                 'rampUp': "${RAMPUP}",
@@ -59,31 +50,6 @@ timeout(240) {
                         performTest('dummy_test.jmx',"${STAGE_NAME}",setPlanProperties(propertiesMap))
                     }
 
-                    /*
-                    // Another way to start a container following the sidecar approach is using the withRun method, which differs
-                    // from the "inside" method  insofar that all commands in the inside block are executed outside the container
-
-                    // Agents have been started, we can run the test now on the controller.
-                    image.withRun('-v "$PWD"/src/test/plans:/home/jmeter/testplans -v "$PWD"/src/test/reports:/home/jmeter/reports -e SLEEP=10','-n -t /home/jmeter/testplans/demo.jmx -l /home/jmeter/reports/result.jtl -e -o /home/jmeter/reports/output -R'+containerIpList.join(",")) { c ->
-
-                        // The waitUntil method will retry every 0.25 seconds, doubling the retry interval up to a maximum of 15 seconds
-                        waitUntil {
-
-                            // Check if the container is still running using the container id returned by the withRun method
-
-                            container_status = sh(script: "docker ps --no-trunc | grep ${c.id} | awk '{print \$1}'", returnStdout: true).toString()
-                            if (container_status != "") {
-                                echo "container id is:"
-                                echo container_status
-                                return false
-                            }
-                            else {
-                                echo "Container does not exist anymore"
-                                return true
-                            }
-                        }
-                    }
-                    */
                     stage('cleanup') {
                         // Handle shutdown of previous started JMeter Agents
                         cleanup(cHandleList)
@@ -100,7 +66,6 @@ timeout(240) {
     }
 }
 
-
 // Method for cleaning started JMeter Agents
 def cleanup(containerHandleList) {
     for (i =0; i < containerHandleList.size(); i++) {
@@ -113,31 +78,24 @@ def performTest(testplan,report,propertiesList) {
         sh "jmeter -n -t /home/jmeter/tests/jmeter/testplans/$testplan -l $WORKSPACE/jmeter/${report}.jtl -e -o $WORKSPACE/jmeter/$report -Jsummariser.interval=5 -R$agentIpList $propertiesList"
     }
     publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: true, reportDir: ''+report, reportFiles: 'index.html', reportName: 'HTML Report '+report, reportTitles: ''])
-    /* perfReport constraints: configureCheckList(report),
-            graphType: 'PRT', modeEvaluation: true, modePerformancePerTestCase: true, modeThroughput: true, percentiles: '0,50,90,100', persistConstraintLog: true,
-            sourceDataFiles:  report+'.jtl' */
-
 }
 
-def configureCheckList(report)
-{
+def setPlanProperties(propertiesMap) {
+    // Retrieve properties defined in the properties map for each plan, and create a string of properties
+    // to be passed to JMeter
+    propertiesList="-G"+propertiesMap.collect { k,v -> "$k=$v" }.join(' -G')
+    println("property list"+propertiesList)
+    return propertiesList
+}
+
+def configureCheckList(report) {
     constraintList = []
     // Get constraints from JSON File by looking after the key name = test name (given as variable)
     readConstraints = data.find { it['name'] == report }?.get("constraints")
     println("constraints determined dynamically are:"+readConstraints)
     readConstraints.absolute.each {
         constraintList.add(absolute(escalationLevel: 'WARNING', meteredValue: 'LINE90', operator: 'NOT_GREATER', relatedPerfReport: report + '.jtl', success: false, testCaseBlock: testCase(it.name), value: it.threshold))
-
     }
     println("my final constraint list: "+constraintList)
     return constraintList
-}
-
-def setPlanProperties(propertiesMap)
-{
-    // Retrieve properties defined in the properties map for each plan, and create a string of properties
-    // to be passed to JMeter
-    propertiesList="-G"+propertiesMap.collect { k,v -> "$k=$v" }.join(' -G')
-    println("property list"+propertiesList)
-    return propertiesList
 }
